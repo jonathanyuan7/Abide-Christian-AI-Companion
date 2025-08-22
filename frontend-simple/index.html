@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Abide: Christian AI Companion</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            color: #4F46E5;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .input-group input,
+        .input-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .input-group input:focus,
+        .input-group textarea:focus {
+            outline: none;
+            border-color: #4F46E5;
+        }
+
+        .button {
+            background: linear-gradient(135deg, #4F46E5 0%, #7C3AED 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(79, 70, 229, 0.3);
+        }
+
+        .button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .feeling-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .feeling-chip {
+            background: #f3f4f6;
+            border: 2px solid #e5e7eb;
+            padding: 8px 16px;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 14px;
+        }
+
+        .feeling-chip:hover {
+            background: #4F46E5;
+            color: white;
+            border-color: #4F46E5;
+        }
+
+        .feeling-chip.selected {
+            background: #4F46E5;
+            color: white;
+            border-color: #4F46E5;
+        }
+
+        .response {
+            background: #f8fafc;
+            border-left: 4px solid #4F46E5;
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .verse {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border-left: 4px solid #10b981;
+        }
+
+        .verse h4 {
+            color: #059669;
+            margin-bottom: 10px;
+        }
+
+        .verse p {
+            line-height: 1.6;
+            color: #374151;
+        }
+
+        .reflection {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border-left: 4px solid #f59e0b;
+        }
+
+        .prayer {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            border-left: 4px solid #ef4444;
+            font-style: italic;
+        }
+
+        .devotion-plan {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+        }
+
+        .devotion-plan h4 {
+            color: #4F46E5;
+            margin-bottom: 15px;
+        }
+
+        .devotion-plan .step {
+            background: #f3f4f6;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border-left: 3px solid #4F46E5;
+        }
+
+        .video-card {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .video-placeholder {
+            background: #f3f4f6;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .video-thumbnail {
+            position: relative;
+            display: inline-block;
+        }
+
+        .video-thumbnail img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-bottom: 15px;
+        }
+
+        .play-button {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 3rem;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border-radius: 50%;
+            width: 80px;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .play-button:hover {
+            background: rgba(0, 0, 0, 0.9);
+            transform: translate(-50%, -50%) scale(1.1);
+        }
+
+        .video-actions {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-top: 15px;
+        }
+
+        .button-small {
+            padding: 10px 20px;
+            font-size: 14px;
+        }
+
+        .button-secondary {
+            background: linear-gradient(135deg, #6b7280 0%, #9ca3af 100%);
+        }
+
+        .button-secondary:hover {
+            box-shadow: 0 10px 20px rgba(107, 114, 128, 0.3);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #6b7280;
+        }
+
+        .spinner {
+            border: 4px solid #f3f4f6;
+            border-top: 4px solid #4F46E5;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .error {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            color: #dc2626;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✨ Abide</h1>
+            <p>Your gentle, privacy-respecting Christian AI companion</p>
+        </div>
+
+        <!-- Feeling Input Card -->
+        <div class="card">
+            <h2>💭 I'm feeling...</h2>
+            <div class="input-group">
+                <label for="feeling-text">Share what's on your heart:</label>
+                <textarea 
+                    id="feeling-text" 
+                    rows="4" 
+                    placeholder="Tell me how you're feeling today..."
+                ></textarea>
+            </div>
+            
+            <div class="feeling-chips">
+                <div class="feeling-chip" data-feeling="anxious">😰 Anxious</div>
+                <div class="feeling-chip" data-feeling="lonely">😔 Lonely</div>
+                <div class="feeling-chip" data-feeling="peaceful">😌 Peaceful</div>
+                <div class="feeling-chip" data-feeling="hopeful">🤗 Hopeful</div>
+                <div class="feeling-chip" data-feeling="strong">💪 Strong</div>
+                <div class="feeling-chip" data-feeling="comforted">🤗 Comforted</div>
+            </div>
+            
+            <button class="button" onclick="submitFeeling()">Get Biblical Guidance</button>
+        </div>
+
+        <!-- Devotion Generator Card -->
+        <div class="card">
+            <h2>🙏 10-Minute Devotion</h2>
+            <div class="input-group">
+                <label for="devotion-theme">Choose a theme (or leave blank for random):</label>
+                <select id="devotion-theme">
+                    <option value="">Random Theme</option>
+                    <option value="peace">Peace</option>
+                    <option value="hope">Hope</option>
+                    <option value="comfort">Comfort</option>
+                    <option value="strength">Strength</option>
+                    <option value="anxiety">Anxiety</option>
+                    <option value="loneliness">Loneliness</option>
+                </select>
+            </div>
+            
+            <button class="button" onclick="generateDevotion()">Generate Devotion</button>
+        </div>
+
+        <!-- Response Display -->
+        <div id="response-container" class="hidden">
+            <div class="card">
+                <h2 id="response-title">Response</h2>
+                <div id="response-content"></div>
+            </div>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading" class="loading hidden">
+            <div class="spinner"></div>
+            <p>Praying for you and finding the perfect words...</p>
+        </div>
+
+        <!-- Error Display -->
+        <div id="error" class="error hidden"></div>
+    </div>
+
+    <script>
+        // API configuration
+        const API_BASE = 'http://localhost:8000/api/v1';
+        
+        // Feeling chip functionality
+        document.querySelectorAll('.feeling-chip').forEach(chip => {
+            chip.addEventListener('click', function() {
+                document.querySelectorAll('.feeling-chip').forEach(c => c.classList.remove('selected'));
+                this.classList.add('selected');
+                
+                const feeling = this.dataset.feeling;
+                document.getElementById('feeling-text').value = `I'm feeling ${feeling}...`;
+            });
+        });
+
+        // Submit feeling
+        async function submitFeeling() {
+            const text = document.getElementById('feeling-text').value.trim();
+            if (!text) {
+                showError('Please share how you\'re feeling.');
+                return;
+            }
+
+            showLoading();
+            hideError();
+            hideResponse();
+
+            try {
+                const response = await fetch(`${API_BASE}/feel`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ text })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayFeelingResponse(data);
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Sorry, there was an error processing your request. Please try again.');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Generate devotion
+        async function generateDevotion() {
+            const theme = document.getElementById('devotion-theme').value;
+            
+            showLoading();
+            hideError();
+            hideResponse();
+
+            try {
+                const response = await fetch(`${API_BASE}/devotion`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ theme })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                displayDevotionResponse(data);
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Sorry, there was an error generating your devotion. Please try again.');
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Display feeling response
+        function displayFeelingResponse(data) {
+            const container = document.getElementById('response-container');
+            const title = document.getElementById('response-title');
+            const content = document.getElementById('response-content');
+
+            title.textContent = `Biblical Guidance for ${data.topic.charAt(0).toUpperCase() + data.topic.slice(1)}`;
+            
+            content.innerHTML = `
+                <div class="response">
+                    <h3>📖 Relevant Bible Verses</h3>
+                    ${data.verses.map(verse => `
+                        <div class="verse">
+                            <h4>${verse.reference} (${verse.translation})</h4>
+                            <p>${verse.text}</p>
+                        </div>
+                    `).join('')}
+                    
+                    <h3>💭 Reflection</h3>
+                    <div class="reflection">
+                        <p>${data.reflection}</p>
+                    </div>
+                    
+                    <h3>🙏 Prayer</h3>
+                    <div class="prayer">
+                        <p>${data.prayer}</p>
+                    </div>
+                </div>
+            `;
+
+            showResponse();
+        }
+
+        // Display devotion response
+        function displayDevotionResponse(data) {
+            const container = document.getElementById('response-container');
+            const title = document.getElementById('response-title');
+            const content = document.getElementById('response-content');
+
+            title.textContent = `10-Minute Devotion: ${data.theme.charAt(0).toUpperCase() + data.theme.slice(1)}`;
+            
+            content.innerHTML = `
+                <div class="response">
+                    <h3>🙏 Opening Prayer</h3>
+                    <div class="prayer">
+                        <p>${data.plan.opening_prayer}</p>
+                    </div>
+                    
+                    <h3>📖 Scriptures</h3>
+                    ${data.plan.scriptures.map(verse => `
+                        <div class="verse">
+                            <h4>${verse.reference} (${verse.translation})</h4>
+                            <p>${verse.text}</p>
+                        </div>
+                    `).join('')}
+                    
+                    <h3>💭 Reflection</h3>
+                    <div class="reflection">
+                        <p>${data.plan.reflection}</p>
+                    </div>
+                    
+                    <h3>🎯 Action Steps</h3>
+                    <div class="devotion-plan">
+                        ${data.plan.action_steps.map((step, index) => `
+                            <div class="step">
+                                <strong>Step ${index + 1}:</strong> ${step}
+                            </div>
+                        `).join('')}
+                    </div>
+                    
+                    <h3>🙏 Closing Prayer</h3>
+                    <div class="prayer">
+                        <p>${data.plan.closing_prayer}</p>
+                    </div>
+                    
+                    <h3>🎵 Worship Video</h3>
+                    <div class="video-card">
+                        <div class="video-placeholder">
+                            <div class="video-thumbnail">
+                                <div class="play-button">▶️</div>
+                                <img src="${data.video.thumbnailUrl}" alt="${data.video.title}" onerror="this.style.display='none'">
+                            </div>
+                        </div>
+                        <h4>${data.video.title}</h4>
+                        <p>${data.video.description}</p>
+                        <p><small>Duration: ${Math.floor(data.video.duration / 60)}:${(data.video.duration % 60).toString().padStart(2, '0')}</small></p>
+                        <div class="video-actions">
+                            <button class="button button-small" onclick="playVideo('${data.video.videoId}', '${data.video.title}')">
+                                🎵 Play Video
+                            </button>
+                            <button class="button button-small button-secondary" onclick="searchYouTube('${data.theme} worship')">
+                                🔍 Find Similar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+
+            showResponse();
+        }
+
+        // Utility functions
+        function showLoading() {
+            document.getElementById('loading').classList.remove('hidden');
+        }
+
+        function hideLoading() {
+            document.getElementById('loading').classList.add('hidden');
+        }
+
+        function showResponse() {
+            document.getElementById('response-container').classList.remove('hidden');
+        }
+
+        function hideResponse() {
+            document.getElementById('response-container').classList.add('hidden');
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.textContent = message;
+            errorDiv.classList.remove('hidden');
+        }
+
+        function hideError() {
+            document.getElementById('error').classList.add('hidden');
+        }
+
+        // Test API connection on page load
+        window.addEventListener('load', async () => {
+            try {
+                const response = await fetch('http://localhost:8000/health');
+                if (response.ok) {
+                    console.log('✅ Backend connected successfully');
+                }
+            } catch (error) {
+                console.error('❌ Backend connection failed:', error);
+                showError('⚠️ Unable to connect to the backend. Please make sure the server is running.');
+            }
+        });
+
+        // Video functionality
+        function playVideo(videoId, title) {
+            // For demo purposes, we'll open YouTube in a new tab
+            // In a real app, you might embed the video or use YouTube's API
+            const youtubeUrl = `https://www.youtube.com/watch?v=${videoId}`;
+            window.open(youtubeUrl, '_blank');
+            
+            // Show a message to the user
+            showToast(`🎵 Opening "${title}" on YouTube...`);
+        }
+
+        function searchYouTube(query) {
+            const searchUrl = `https://www.youtube.com/results?search_query=${encodeURIComponent(query)}`;
+            window.open(searchUrl, '_blank');
+            
+            showToast(`🔍 Searching YouTube for "${query}"...`);
+        }
+
+        // Simple toast notification system
+        function showToast(message) {
+            // Create toast element
+            const toast = document.createElement('div');
+            toast.className = 'toast';
+            toast.textContent = message;
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: #4F46E5;
+                color: white;
+                padding: 15px 20px;
+                border-radius: 10px;
+                box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+                z-index: 1000;
+                animation: slideIn 0.3s ease;
+            `;
+            
+            // Add animation keyframes
+            if (!document.querySelector('#toast-styles')) {
+                const style = document.createElement('style');
+                style.id = 'toast-styles';
+                style.textContent = `
+                    @keyframes slideIn {
+                        from { transform: translateX(100%); opacity: 0; }
+                        to { transform: translateX(0); opacity: 1; }
+                    }
+                    @keyframes slideOut {
+                        from { transform: translateX(0); opacity: 1; }
+                        to { transform: translateX(100%); opacity: 0; }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
+            
+            document.body.appendChild(toast);
+            
+            // Remove toast after 3 seconds
+            setTimeout(() => {
+                toast.style.animation = 'slideOut 0.3s ease';
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
